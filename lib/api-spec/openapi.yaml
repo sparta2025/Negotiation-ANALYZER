@@ -10,6 +10,8 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: analysis
+    description: Negotiation presale analysis
 paths:
   /healthz:
     get:
@@ -24,6 +26,37 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /analyze:
+    post:
+      operationId: createAnalysis
+      tags: [analysis]
+      summary: Analyze negotiation text
+      description: Produces a structured presale assessment from a negotiation transcript.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnalysisInput"
+      responses:
+        "200":
+          description: Structured negotiation analysis
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Analysis"
+        "400":
+          description: Invalid negotiation text
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Analysis service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 components:
   schemas:
     HealthStatus:
@@ -33,4 +66,204 @@ components:
           type: string
       required:
         - status
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+    AnalysisInput:
+      type: object
+      properties:
+        text:
+          type: string
+          minLength: 80
+        projectName:
+          type: string
+      required:
+        - text
+    Analysis:
+      type: object
+      properties:
+        id:
+          type: string
+        createdAt:
+          type: string
+        project:
+          $ref: "#/components/schemas/ProjectOverview"
+        complexity:
+          $ref: "#/components/schemas/ComplexityAssessment"
+        pricing:
+          $ref: "#/components/schemas/PricingAssessment"
+        timeline:
+          $ref: "#/components/schemas/TimelineAssessment"
+        stages:
+          type: array
+          items:
+            $ref: "#/components/schemas/DeliveryStage"
+        risks:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProjectRisk"
+        devTools:
+          type: array
+          items:
+            $ref: "#/components/schemas/DevTool"
+        aiTechnologies:
+          type: array
+          items:
+            $ref: "#/components/schemas/AiTechnology"
+        questions:
+          type: array
+          items:
+            $ref: "#/components/schemas/ClientQuestion"
+        unknowns:
+          type: array
+          items:
+            $ref: "#/components/schemas/CriticalUnknown"
+        summary:
+          $ref: "#/components/schemas/ExecutiveSummary"
+      required:
+        - id
+        - createdAt
+        - project
+        - complexity
+        - pricing
+        - timeline
+        - stages
+        - risks
+        - devTools
+        - aiTechnologies
+        - questions
+        - unknowns
+        - summary
+    ProjectOverview:
+      type: object
+      properties:
+        name:
+          type: string
+        clientWants:
+          type: string
+        productToBuild:
+          type: string
+        type:
+          type: string
+      required: [name, clientWants, productToBuild, type]
+    ComplexityAssessment:
+      type: object
+      properties:
+        level:
+          type: string
+          enum: [Низкая, Средняя, Высокая, "Очень высокая"]
+        confidence:
+          type: string
+          enum: [Низкая, Средняя, Высокая]
+        reason:
+          type: string
+      required: [level, confidence, reason]
+    PricingAssessment:
+      type: object
+      properties:
+        estimate:
+          type: string
+        evaluationType:
+          type: string
+          enum: [MVP, "Полноценная версия", Предварительная]
+        included:
+          type: array
+          items: { type: string }
+        costDrivers:
+          type: array
+          items: { type: string }
+      required: [estimate, evaluationType, included, costDrivers]
+    TimelineAssessment:
+      type: object
+      properties:
+        estimate:
+          type: string
+        format:
+          type: string
+          enum: [MVP, "Полноценная версия"]
+        factors:
+          type: array
+          items: { type: string }
+      required: [estimate, format, factors]
+    DeliveryStage:
+      type: object
+      properties:
+        name:
+          type: string
+        work:
+          type: string
+        duration:
+          type: string
+      required: [name, work, duration]
+    ProjectRisk:
+      type: object
+      properties:
+        risk:
+          type: string
+        why:
+          type: string
+        impact:
+          type: string
+          enum: [Низкое, Среднее, Высокое]
+      required: [risk, why, impact]
+    DevTool:
+      type: object
+      properties:
+        tool:
+          type: string
+        purpose:
+          type: string
+        why:
+          type: string
+      required: [tool, purpose, why]
+    AiTechnology:
+      type: object
+      properties:
+        technology:
+          type: string
+        status:
+          type: string
+          enum: [Нужна, "Не нужна", "Возможно потребуется"]
+        purpose:
+          type: string
+      required: [technology, status, purpose]
+    ClientQuestion:
+      type: object
+      properties:
+        question:
+          type: string
+        whyImportant:
+          type: string
+      required: [question, whyImportant]
+    CriticalUnknown:
+      type: object
+      properties:
+        parameter:
+          type: string
+        impact:
+          type: string
+          enum: [Низкое, Среднее, Высокое]
+      required: [parameter, impact]
+    ExecutiveSummary:
+      type: object
+      properties:
+        project:
+          type: string
+        cost:
+          type: string
+        timeline:
+          type: string
+        complexity:
+          type: string
+        mainRisk:
+          type: string
+        mainUnknown:
+          type: string
+        firstQuestion:
+          type: string
+      required: [project, cost, timeline, complexity, mainRisk, mainUnknown, firstQuestion]
 

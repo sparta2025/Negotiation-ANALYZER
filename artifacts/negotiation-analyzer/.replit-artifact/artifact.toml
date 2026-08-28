@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Negotiation Analyzer"
+description = "An AI presale workspace that turns client negotiations into a structured delivery assessment with scope, commercial range, timeline, risks, AI requirements, and prioritized clarification questions."
+version = "1.0.0"
+id = "artifacts/negotiation-analyzer"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 23572
+
+[services.development]
+run = "pnpm --filter @workspace/negotiation-analyzer run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/negotiation-analyzer", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/negotiation-analyzer/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "23572"
+BASE_PATH = "/"

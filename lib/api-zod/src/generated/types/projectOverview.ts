@@ -6,6 +6,9 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface HealthStatus {
-  status: string;
+export interface ProjectOverview {
+  name: string;
+  clientWants: string;
+  productToBuild: string;
+  type: string;
 }
