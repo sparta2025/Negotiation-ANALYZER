@@ -194,7 +194,7 @@ function WorkspaceSidebar({
       <div className={`mt-5 flex items-center ${collapsed ? 'justify-center' : 'justify-between'} px-2 text-[10px] text-[#7f8ca1]`}>
         {!collapsed && <span className="mono">v0.9.4</span>}
         {!collapsed && <span className="flex items-center gap-1.5"><span className="size-1.5 rounded-full bg-[#8bd1c1]" /> Приватное пространство</span>}
-        <button type="button" onClick={onToggleCollapse} data-testid="button-toggle-sidebar" title={collapsed ? 'Раскрыть навигацию' : 'Скрыть навигацию'} className="rounded-md px-2 py-1 text-[#b6c0ce] hover:bg-[#2b3952] hover:text-white">
+        <button type="button" onClick={onToggleCollapse} data-testid="button-toggle-sidebar" title={collapsed ? 'Раскрыть навигацию' : 'Скрыть навигацию'} aria-label={collapsed ? 'Раскрыть навигацию' : 'Скрыть навигацию'} aria-expanded={!collapsed} className="rounded-md px-2 py-1 text-[9px] text-[#b6c0ce] hover:bg-[#2b3952] hover:text-white">
           {collapsed ? 'Раскрыть' : 'Скрыть'}
         </button>
       </div>
@@ -644,7 +644,7 @@ function DocumentationPage() {
           </section>
 
           <div className="mt-6 border-t border-[#dedbd1] pt-5 text-[10px] leading-[1.6] text-[#8b908a]">
-            <span className="font-bold text-[#687178]">Важно:</span> оценка помогает подготовить следующий разговор, но не заменяет техническое обследование, юридическую проверку, security review или согласованную смету. Не передавайте в анализ секреты, пароли и ключи доступа.
+            <span className="font-bold text-[#687178]">Важно:</span> оценка помогает подготовить следующий разговор, но не заменяет техническое обследование, юридическую проверку, проверку безопасности или согласованную смету. Не передавайте в анализ секреты, пароли и ключи доступа.
           </div>
         </div>
       </main>
