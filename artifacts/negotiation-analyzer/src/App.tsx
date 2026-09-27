@@ -141,7 +141,7 @@ function WorkspaceSidebar({
   mobileOpen: boolean;
 }) {
   return (
-    <aside className={`${mobileOpen ? 'flex' : 'hidden'} relative w-full shrink-0 flex-col bg-[#172033] px-4 py-5 text-[#f4f0e7] transition-[width] duration-200 md:fixed md:inset-y-0 md:flex ${collapsed ? 'md:w-[76px]' : 'md:w-[232px]'}`}>
+    <aside className={`${mobileOpen ? 'flex' : 'hidden'} relative z-20 w-full shrink-0 flex-col bg-[#172033] px-4 py-5 text-[#f4f0e7] transition-[width] duration-200 md:fixed md:inset-y-0 md:flex ${collapsed ? 'md:w-[76px]' : 'md:w-[232px]'}`}>
       <button
         type="button"
         onClick={onToggleCollapse}
@@ -149,7 +149,7 @@ function WorkspaceSidebar({
         title={collapsed ? 'Раскрыть навигацию' : 'Скрыть навигацию'}
         aria-label={collapsed ? 'Раскрыть навигацию' : 'Скрыть навигацию'}
         aria-expanded={!collapsed}
-        className={`absolute top-5 z-30 grid size-8 place-items-center rounded-full border text-[#b6c0ce] transition-colors hover:text-white ${collapsed ? '-right-8 border-[#516079] bg-[#27334a] shadow-[0_6px_18px_rgba(23,32,51,0.38)] hover:bg-[#2b3952]' : 'right-3 border-[#38445b] bg-[#222e44] shadow-lg hover:bg-[#2b3952]'}`}
+        className={`absolute top-5 z-30 grid size-8 place-items-center rounded-full border text-[#b6c0ce] transition-colors hover:text-white ${collapsed ? '-right-4 border-[#516079] bg-[#27334a] shadow-[0_6px_18px_rgba(23,32,51,0.42)] hover:bg-[#2b3952]' : 'right-3 border-[#38445b] bg-[#222e44] shadow-lg hover:bg-[#2b3952]'}`}
       >
         {collapsed ? <PanelLeftOpen size={14} /> : <PanelLeftClose size={14} />}
       </button>
