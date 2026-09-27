@@ -141,7 +141,7 @@ function WorkspaceSidebar({
   mobileOpen: boolean;
 }) {
   return (
-    <aside className={`${mobileOpen ? 'flex' : 'hidden'} relative z-20 w-full shrink-0 flex-col bg-[#172033] px-4 py-5 text-[#f4f0e7] transition-[width] duration-200 md:fixed md:inset-y-0 md:flex ${collapsed ? 'md:w-[76px]' : 'md:w-[232px]'}`}>
+    <aside className={`${mobileOpen ? 'flex' : 'hidden'} relative z-40 w-full shrink-0 flex-col bg-[#172033] px-4 py-5 text-[#f4f0e7] transition-[width] duration-200 md:fixed md:inset-y-0 md:flex ${collapsed ? 'md:w-[76px]' : 'md:w-[232px]'}`}>
       <button
         type="button"
         onClick={onToggleCollapse}
