@@ -141,7 +141,18 @@ function WorkspaceSidebar({
   mobileOpen: boolean;
 }) {
   return (
-    <aside className={`${mobileOpen ? 'flex' : 'hidden'} w-full shrink-0 flex-col bg-[#172033] px-4 py-5 text-[#f4f0e7] transition-[width] duration-200 md:fixed md:inset-y-0 md:flex ${collapsed ? 'md:w-[76px]' : 'md:w-[232px]'}`}>
+    <aside className={`${mobileOpen ? 'flex' : 'hidden'} relative w-full shrink-0 flex-col bg-[#172033] px-4 py-5 text-[#f4f0e7] transition-[width] duration-200 md:fixed md:inset-y-0 md:flex ${collapsed ? 'md:w-[76px]' : 'md:w-[232px]'}`}>
+      <button
+        type="button"
+        onClick={onToggleCollapse}
+        data-testid="button-toggle-sidebar"
+        title={collapsed ? 'Раскрыть навигацию' : 'Скрыть навигацию'}
+        aria-label={collapsed ? 'Раскрыть навигацию' : 'Скрыть навигацию'}
+        aria-expanded={!collapsed}
+        className={`absolute top-5 z-30 grid size-7 place-items-center rounded-full border text-[#b6c0ce] shadow-lg transition-colors hover:text-white ${collapsed ? '-right-3 border-[#516079] bg-[#222e44] hover:bg-[#2b3952]' : 'right-3 border-[#38445b] bg-[#222e44] hover:bg-[#2b3952]'}`}
+      >
+        {collapsed ? <PanelLeftOpen size={14} /> : <PanelLeftClose size={14} />}
+      </button>
       <div className={collapsed ? 'px-0' : 'px-2'}>
         <BrandMark collapsed={collapsed} />
       </div>
@@ -198,9 +209,6 @@ function WorkspaceSidebar({
       <div className={`mt-5 flex items-center ${collapsed ? 'justify-center' : 'justify-between'} px-2 text-[10px] text-[#7f8ca1]`}>
         {!collapsed && <span className="mono">v0.9.4</span>}
         {!collapsed && <span className="flex items-center gap-1.5"><span className="size-1.5 rounded-full bg-[#8bd1c1]" /> Приватное пространство</span>}
-        <button type="button" onClick={onToggleCollapse} data-testid="button-toggle-sidebar" title={collapsed ? 'Раскрыть навигацию' : 'Скрыть навигацию'} aria-label={collapsed ? 'Раскрыть навигацию' : 'Скрыть навигацию'} aria-expanded={!collapsed} className="rounded-md px-2 py-1 text-[9px] text-[#b6c0ce] hover:bg-[#2b3952] hover:text-white">
-          {collapsed ? <PanelLeftOpen size={14} /> : <PanelLeftClose size={14} />}
-        </button>
       </div>
     </aside>
   );
