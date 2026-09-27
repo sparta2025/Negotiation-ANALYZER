@@ -20,6 +20,8 @@ import {
   Menu,
   MessageSquareQuote,
   Network,
+  PanelLeftClose,
+  PanelLeftOpen,
   Plus,
   Radar,
   RefreshCw,
@@ -128,6 +130,7 @@ function WorkspaceSidebar({
   onDocumentation,
   collapsed,
   onToggleCollapse,
+  mobileOpen,
 }: {
   activeSection: NavigationKey;
   onSectionChange: (section: SectionKey) => void;
@@ -135,9 +138,10 @@ function WorkspaceSidebar({
   onDocumentation: () => void;
   collapsed: boolean;
   onToggleCollapse: () => void;
+  mobileOpen: boolean;
 }) {
   return (
-    <aside className={`flex w-full shrink-0 flex-col bg-[#172033] px-4 py-5 text-[#f4f0e7] transition-[width] duration-200 md:fixed md:inset-y-0 ${collapsed ? 'md:w-[76px]' : 'md:w-[232px]'}`}>
+    <aside className={`${mobileOpen ? 'flex' : 'hidden'} w-full shrink-0 flex-col bg-[#172033] px-4 py-5 text-[#f4f0e7] transition-[width] duration-200 md:fixed md:inset-y-0 md:flex ${collapsed ? 'md:w-[76px]' : 'md:w-[232px]'}`}>
       <div className={collapsed ? 'px-0' : 'px-2'}>
         <BrandMark collapsed={collapsed} />
       </div>
@@ -195,7 +199,7 @@ function WorkspaceSidebar({
         {!collapsed && <span className="mono">v0.9.4</span>}
         {!collapsed && <span className="flex items-center gap-1.5"><span className="size-1.5 rounded-full bg-[#8bd1c1]" /> Приватное пространство</span>}
         <button type="button" onClick={onToggleCollapse} data-testid="button-toggle-sidebar" title={collapsed ? 'Раскрыть навигацию' : 'Скрыть навигацию'} aria-label={collapsed ? 'Раскрыть навигацию' : 'Скрыть навигацию'} aria-expanded={!collapsed} className="rounded-md px-2 py-1 text-[9px] text-[#b6c0ce] hover:bg-[#2b3952] hover:text-white">
-          {collapsed ? 'Раскрыть' : 'Скрыть'}
+          {collapsed ? <PanelLeftOpen size={14} /> : <PanelLeftClose size={14} />}
         </button>
       </div>
     </aside>
@@ -455,6 +459,7 @@ function Home() {
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [activeSection, setActiveSection] = useState<SectionKey>('overview');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const analysisMutation = useCreateAnalysis();
   const health = useHealthCheck();
@@ -486,11 +491,13 @@ function Home() {
     setAnalysis(null);
     analysisMutation.reset();
     setCopied(false);
+    setMobileNavOpen(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
   const focusTranscript = () => document.getElementById('transcript')?.focus();
   const jumpTo = (section: SectionKey) => {
     setActiveSection(section);
+    setMobileNavOpen(false);
     document.getElementById(section)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
   const copyAssessment = async () => {
@@ -513,11 +520,11 @@ function Home() {
 
   return (
     <AppShell>
-      <WorkspaceSidebar activeSection={activeSection} onSectionChange={jumpTo} onNew={clearWorkspace} onDocumentation={() => setLocation('/documentation')} collapsed={sidebarCollapsed} onToggleCollapse={() => setSidebarCollapsed((value) => !value)} />
+      <WorkspaceSidebar activeSection={activeSection} onSectionChange={jumpTo} onNew={clearWorkspace} onDocumentation={() => { setMobileNavOpen(false); setLocation('/documentation'); }} collapsed={sidebarCollapsed} onToggleCollapse={() => setSidebarCollapsed((value) => !value)} mobileOpen={mobileNavOpen} />
       <main className={`min-h-[100dvh] transition-[margin] duration-200 ${sidebarCollapsed ? 'md:ml-[76px]' : 'md:ml-[232px]'}`}>
         <header className="sticky top-0 z-20 flex min-h-[68px] items-center justify-between gap-4 border-b border-[#dedbd1]/90 bg-[#f5f3ee]/90 px-5 backdrop-blur-md md:px-9">
           <div className="flex items-center gap-3">
-             <button type="button" onClick={clearWorkspace} data-testid="button-mobile-menu" className="grid size-9 place-items-center rounded-lg text-[#667078] hover:bg-[#e9e7df] md:hidden"><Menu size={18} /></button>
+             <button type="button" onClick={() => setMobileNavOpen((value) => !value)} data-testid="button-mobile-menu" aria-label={mobileNavOpen ? 'Закрыть навигацию' : 'Открыть навигацию'} aria-expanded={mobileNavOpen} className="grid size-9 place-items-center rounded-lg text-[#667078] hover:bg-[#e9e7df] md:hidden">{mobileNavOpen ? <X size={18} /> : <Menu size={18} />}</button>
              <div className="hidden items-center gap-2 text-[10px] text-[#858b87] sm:flex"><span className="mono text-[#b0afa8]">РАБОЧАЯ ОБЛАСТЬ</span><ChevronDown size={13} /><span className="font-bold text-[#485257]">Оценка пресейла</span></div>
              <div className="flex items-center gap-2 sm:hidden"><span className="mono text-[10px] font-bold tracking-[.1em] text-[#485257]">NEGOTIATION ANALYZER</span></div>
           </div>
@@ -550,21 +557,24 @@ function Home() {
 
 function DocumentationPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [, setLocation] = useLocation();
 
   return (
     <AppShell>
       <WorkspaceSidebar
         activeSection="documentation"
-        onSectionChange={() => setLocation('/')}
-        onNew={() => setLocation('/')}
+        onSectionChange={() => { setMobileNavOpen(false); setLocation('/'); }}
+        onNew={() => { setMobileNavOpen(false); setLocation('/'); }}
         onDocumentation={() => undefined}
         collapsed={sidebarCollapsed}
         onToggleCollapse={() => setSidebarCollapsed((value) => !value)}
+        mobileOpen={mobileNavOpen}
       />
       <main className={`min-h-[100dvh] transition-[margin] duration-200 ${sidebarCollapsed ? 'md:ml-[76px]' : 'md:ml-[232px]'}`}>
         <header className="sticky top-0 z-20 flex min-h-[68px] items-center justify-between gap-4 border-b border-[#dedbd1]/90 bg-[#f5f3ee]/90 px-5 backdrop-blur-md md:px-9">
           <div className="flex items-center gap-3">
+            <button type="button" onClick={() => setMobileNavOpen((value) => !value)} data-testid="button-mobile-menu" aria-label={mobileNavOpen ? 'Закрыть навигацию' : 'Открыть навигацию'} aria-expanded={mobileNavOpen} className="grid size-9 place-items-center rounded-lg text-[#667078] hover:bg-[#e9e7df] md:hidden">{mobileNavOpen ? <X size={18} /> : <Menu size={18} />}</button>
             <div className="flex items-center gap-2 text-[10px] text-[#858b87]"><span className="mono text-[#b0afa8]">СПРАВКА</span><ChevronDown size={13} /><span className="font-bold text-[#485257]">Документация</span></div>
           </div>
           <button type="button" onClick={() => setLocation('/')} className="flex items-center gap-2 rounded-lg bg-[#172033] px-3 py-2 text-[10px] font-bold text-[#f4f0e7] hover:bg-[#222e44]"><ArrowRight size={13} className="rotate-180" /> К анализу</button>
