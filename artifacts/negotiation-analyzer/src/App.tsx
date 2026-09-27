@@ -1,4 +1,4 @@
-import { type ReactNode, useMemo, useState } from 'react';
+import { type ChangeEvent, type ReactNode, useMemo, useRef, useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import {
@@ -30,6 +30,7 @@ import {
   Sparkles,
   Target,
   Timer,
+  Upload,
   X,
   type LucideIcon,
 } from 'lucide-react';
@@ -438,6 +439,34 @@ function InputPanel({
   const text = form.watch('text') || '';
   const projectName = form.watch('projectName') || '';
   const ready = text.trim().length >= 80;
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [importedFileName, setImportedFileName] = useState<string | null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
+  const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+
+    try {
+      const content = await file.text();
+      const projectTitle = file.name.replace(/\.[^/.]+$/, '');
+      form.setValue('projectName', projectTitle, { shouldDirty: true, shouldValidate: true });
+      form.setValue('text', content, { shouldDirty: true, shouldValidate: true });
+      setImportedFileName(file.name);
+      setUploadError(null);
+    } catch {
+      setImportedFileName(null);
+      setUploadError('Не удалось прочитать файл. Выберите текстовый файл и повторите попытку.');
+    }
+  };
+
+  const handleClear = () => {
+    onClear();
+    setImportedFileName(null);
+    setUploadError(null);
+  };
+
   return (
     <section className="rounded-2xl border border-[#d7d8cd] bg-[#f9f7f1] p-6 panel-shadow md:p-7">
       <div className="flex items-start justify-between gap-3">
@@ -448,13 +477,24 @@ function InputPanel({
         <form onSubmit={form.handleSubmit(onSubmit)} className="mt-7">
            <label htmlFor="projectName" className="eyebrow text-[#7a817e]">Название проекта <span className="normal-case tracking-normal text-[#a9aca6]">(необязательно)</span></label>
            <input id="projectName" {...form.register('projectName')} data-testid="input-project-name" placeholder="например, личный кабинет пациента" className="mt-2 w-full rounded-lg border border-[#d8d7cd] bg-[#f4f1e9] px-3.5 py-3 text-[11px] text-[#3d464b] outline-none transition-colors placeholder:text-[#adafa9] focus:border-[#b58a4b] focus:ring-2 focus:ring-[#eea346]/20" />
-           <div className="mt-5 flex items-center justify-between"><label htmlFor="transcript" className="eyebrow text-[#7a817e]">Расшифровка переговоров</label><span className={`mono text-[9px] ${ready ? 'text-[#368176]' : 'text-[#9b9f99]'}`}>{text.length.toLocaleString('ru-RU')} симв.</span></div>
+            <div className="mt-5 flex flex-wrap items-center justify-between gap-2">
+              <label htmlFor="transcript" className="eyebrow text-[#7a817e]">Расшифровка переговоров</label>
+              <div className="flex items-center gap-2">
+                <input ref={fileInputRef} type="file" accept=".txt,.md,.csv,.json,.log,.srt,.vtt,text/*" onChange={handleFileChange} className="hidden" />
+                <button type="button" onClick={() => fileInputRef.current?.click()} data-testid="button-upload-transcript" className="flex items-center gap-1.5 rounded-md border border-[#d6d4cb] bg-[#f9f7f1] px-2.5 py-1.5 text-[10px] font-bold text-[#5c6464] hover:bg-[#efede7]">
+                  <Upload size={12} className="text-[#a46c26]" /> Загрузить файл
+                </button>
+                <span className={`mono text-[9px] ${ready ? 'text-[#368176]' : 'text-[#9b9f99]'}`}>{text.length.toLocaleString('ru-RU')} симв.</span>
+              </div>
+            </div>
            <textarea id="transcript" {...form.register('text')} data-testid="input-transcript" placeholder="Вставьте сюда текст разговора..." className="mt-2 min-h-[270px] w-full resize-y rounded-xl border border-[#d8d7cd] bg-[#f4f1e9] px-4 py-3.5 text-[12px] leading-[1.65] text-[#3d464b] outline-none transition-colors placeholder:text-[#adafa9] focus:border-[#b58a4b] focus:ring-2 focus:ring-[#eea346]/20" />
+            {importedFileName && <div className="mt-2 text-[10px] text-[#368176]">Загружен файл: <span className="font-bold">{importedFileName}</span>. Имя без расширения использовано как название проекта.</div>}
+            {uploadError && <div className="mt-2 text-[10px] text-[#a64735]">{uploadError}</div>}
            <div className="mt-2 flex items-center gap-2 text-[10px] text-[#939791]"><FileQuestion size={13} /> Для полезной оценки нужно минимум 80 символов.</div>
           <div className="mt-6 flex flex-wrap items-center gap-2.5">
              <button type="submit" disabled={!ready || isPending} data-testid="button-analyze" className="group flex items-center gap-2 rounded-lg bg-[#172033] px-4 py-3 text-[11px] font-bold text-[#f4f0e7] transition-transform duration-200 hover:-translate-y-0.5 hover:bg-[#222e44] disabled:cursor-not-allowed disabled:opacity-40"><span>{isPending ? 'Анализируем' : 'Запустить анализ'}</span>{isPending ? <Loader2 size={14} className="animate-spin" /> : <ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" />}</button>
              <button type="button" onClick={onSample} data-testid="button-load-sample" className="flex items-center gap-2 rounded-lg border border-[#d6d4cb] px-3.5 py-3 text-[11px] font-bold text-[#5c6464] hover:bg-[#efede7]"><Sparkles size={14} className="text-[#b17832]" /> Загрузить пример</button>
-             {(text || projectName) && <button type="button" onClick={onClear} data-testid="button-clear-input" className="ml-auto grid size-10 place-items-center rounded-lg text-[#979b95] hover:bg-[#efede7] hover:text-[#a64735]" aria-label="Очистить расшифровку"><X size={15} /></button>}
+              {(text || projectName) && <button type="button" onClick={handleClear} data-testid="button-clear-input" className="ml-auto grid size-10 place-items-center rounded-lg text-[#979b95] hover:bg-[#efede7] hover:text-[#a64735]" aria-label="Очистить расшифровку"><X size={15} /></button>}
           </div>
         </form>
       </Form>
